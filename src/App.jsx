@@ -9,6 +9,7 @@ import NotFound from './pages/NotFound'
 import Login from './pages/login';
 import Register from "./pages/Register";
 
+
 function App() {
   return (
     <div className="flex flex-col min-h-screen">
