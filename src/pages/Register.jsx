@@ -1,20 +1,49 @@
 import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
 
 const Register = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleRegister = (e) => {
+  const navigate = useNavigate();
+  const API_BASE_URL = "http://localhost:5000"; // ✅ Ensure this matches backend port
+
+  const handleRegister = async (e) => {
     e.preventDefault();
+
     if (!username || !email || !password) {
       setError("All fields are required!");
       return;
     }
+
     setError("");
-    console.log("Registering with:", username, email, password);
-    // Add registration logic here
+    setLoading(true);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      const data = await response.json();
+      console.log("Response:", data);
+
+      if (response.ok && data.success) {
+        alert("✅ Registration successful!");
+        navigate("/login");
+      } else {
+        setError(data.message || "❌ Registration failed!");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setError("❌ Server is unreachable. Check if backend is running.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -61,13 +90,17 @@ const Register = () => {
           <button
             type="submit"
             className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition"
+            disabled={loading}
           >
-            Register
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
 
         <p className="text-sm text-gray-600 text-center mt-4">
-          Already have an account? <a href="/login" className="text-blue-500 hover:underline">Login</a>
+          Already have an account?{" "}
+          <Link to="/login" className="text-blue-500 hover:underline">
+            Login
+          </Link>
         </p>
       </div>
     </div>
